@@ -1,0 +1,43 @@
+
+echo
+echo
+echo "JSON met lijst van alle klanten:"
+curl http://webservices.local/server/klanten.php
+
+echo
+echo
+echo "Gevonden klanten voor ontbrekend of leeg zoekwoord:"
+curl http://webservices.local/server/klantenzoek.php
+
+echo
+echo
+echo "Gevonden klanten voor zoekwoord 'vries':"
+curl http://webservices.local/server/klantenzoek.php?zoek=vries
+
+# echo
+# echo
+# echo "Gevonden klanten voor zoekwoord 'vries', zoekwoord in body van een POST request:"
+# curl --data "zoek=vries" http://webservices.local/server/klantenzoek.php
+
+echo
+echo
+echo "Gevonden klanten voor zoekwoord 'vries', pretty-printed:"
+curl --silent http://webservices.local/server/klantenzoek.php?zoek=vries | python -m json.tool
+
+echo
+echo
+echo "Wijzig de naam van klant #4:"
+curl http://webservices.local/server/klantupdate.php -d '{"id":"4", "naam":"Jonas Allersma", "plaats":"Amsterdam"}' -H 'Content-Type: application/json'
+echo
+curl http://webservices.local/server/klantenzoek.php?zoek=allersma
+echo
+curl http://webservices.local/server/klantupdate.php -d '{"id":"4", "naam":"Daan Allersma", "plaats":"Amsterdam"}' -H 'Content-Type: application/json'
+echo
+curl http://webservices.local/server/klantenzoek.php?zoek=allersma
+echo
+
+echo
+echo
+echo "Probeer data die alleen lukt met geparametriseerde queries:"
+curl http://webservices.local/server/klantupdate.php -d "{\"id\":\"4\", \"naam\":\"Apo'strof\", \"plaats\":\"Es\"}" -H 'Content-Type: application/json'
+
