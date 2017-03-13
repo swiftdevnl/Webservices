@@ -1,5 +1,7 @@
 <?php
 
+// TODO: Bij een eventuele foutsituatie, beter en consistenter inpakken voor de client.
+
 error_reporting(E_ALL);
 ini_set("display_errors",1);
 
@@ -13,17 +15,25 @@ if ($db->connect_errno){
 $inputjson = file_get_contents("php://input");
 $data = json_decode($inputjson, TRUE);
 
-// TODO: geparameteriseerde query gebruiken om SQL injectie te voorkomen, en ivm. de enkele quote.
-
-$id = $data["id"];
+$id = intval($data["id"]);
 $naam = $data["naam"];
 $plaats = $data["plaats"];
-$sql = "update klanten  set naam='$naam', plaats='$plaats'  where id=$id";
-$ok = $db->query($sql);
 
-// TODO: Bij een eventuele foutsituatie, beter en consistenter inpakken voor de client.
+if (!$id) {
+	die("Query error: invalid id");
+	}
+
+$st = $db->prepare("update klanten set naam=?, plaats=? where id=?");
+
 if ($db->errno){
-	die("Query error: ".$db->error);
+	die("Query statement error: ".$db->error);
+	}
+
+$st->bind_param("ssi", $naam, $plaats, $id);
+$ok = $st->execute();
+
+if ($db->errno){
+	die("Query execute error: ".$db->error);
 	}
 
 // Geef resultaat terug aan de client.

@@ -23,8 +23,11 @@ if (empty($_GET["zoek"])) {
     $rs = $db->query("select id, naam, plaats from klanten order by naam");
 	}
 else {
-    $zoek = $_GET["zoek"];
-    $rs = $db->query("select id, naam, plaats from klanten where naam like '%$zoek%' order by naam");
+    $zoek = "%".$_GET["zoek"]."%";
+	$st = $db->prepare("select id, naam, plaats from klanten where naam like ? order by naam");
+	$st->bind_param("s", $zoek);
+    $st->execute();
+	$rs = $st->get_result();
 	}
 
 if ($db->errno){
